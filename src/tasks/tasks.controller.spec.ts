@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { BadRequestException } from '@nestjs/common';
 
 const mockTasksService = {
   create: jest.fn(),
@@ -48,5 +49,15 @@ describe('TasksController', () => {
 
     expect(mockTasksService.create).toHaveBeenCalledWith(dto);
     expect(result).toEqual(created);
+  });
+
+  it('create() erreur si titre vide', async () => {
+    const dto = { title: '' };  
+    mockTasksService.create.mockRejectedValueOnce(
+      new BadRequestException('title should not be empty'),
+    );
+
+    await expect(controller.create(dto as any)).rejects.toBeInstanceOf(BadRequestException);
+    expect(mockTasksService.create).toHaveBeenCalledWith(dto);
   });
 });
