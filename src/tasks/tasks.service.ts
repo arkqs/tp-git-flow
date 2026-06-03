@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
+import { TasksStatsDto } from './dto/tasks-stats.dto';
 
 @Injectable()
 export class TasksService {
@@ -39,5 +40,13 @@ export class TasksService {
   async remove(id: number): Promise<Task> {
     await this.findOne(id);
     return this.prisma.task.delete({ where: { id } });
+  }
+
+  async stats(): Promise<TasksStatsDto> {
+    const total = await this.prisma.task.count();
+    const done = await this.prisma.task.count({ where: { done: true } });
+    const pending = total - done;
+
+    return { total, done, pending };
   }
 }

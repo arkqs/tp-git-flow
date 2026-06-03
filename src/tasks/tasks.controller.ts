@@ -18,6 +18,14 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @ApiOperation({ summary: 'Obtenir les statistiques des tâches' })
+  @ApiResponse({ status: 200, description: 'Statistiques des tâches' })
+  @Get('stats')
+  stats() {
+    console.log('sahur')
+    return this.tasksService.stats();
+  } 
+
   @ApiOperation({ summary: 'Créer une tâche' })
   @ApiResponse({ status: 201, description: 'Tâche créée avec succès' })
   @Post()
