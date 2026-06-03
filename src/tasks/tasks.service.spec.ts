@@ -11,6 +11,7 @@ const mockPrismaService = {
     findUnique: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    count: jest.fn(),
   },
 };
 
@@ -104,21 +105,24 @@ describe('TasksService', () => {
     });
   });
 
-  // TODO (Git Flow — branche feature/add-task-stats) : implémenter getStats() dans TasksService,
-  // puis décommenter et adapter ce bloc de test.
-  //
-  // describe('getStats', () => {
-  //   it('retourne le total, le nombre de tâches terminées et en attente', async () => {
-  //     const tasks = [
-  //       { id: 1, title: 'Tâche 1', content: null, done: false, createdAt: new Date() },
-  //       { id: 2, title: 'Tâche 2', content: null, done: true,  createdAt: new Date() },
-  //       { id: 3, title: 'Tâche 3', content: null, done: false, createdAt: new Date() },
-  //     ];
-  //     mockPrismaService.task.findMany.mockResolvedValue(tasks);
-  //
-  //     const result = await service.getStats();
-  //
-  //     expect(result).toEqual({ total: 3, done: 1, pending: 2 });
-  //   });
-  // });
+  // tasks.service.spec.ts
+
+  describe('getStats', () => {
+    it('retourne le total, le nombre de tâches terminées et en attente', async () => {
+      (mockPrismaService.task.count as jest.Mock)
+        // 1er appel: total
+        .mockResolvedValueOnce(3)
+        // 2e appel: done
+        .mockResolvedValueOnce(1);
+
+      const result = await service.stats();
+
+      expect(mockPrismaService.task.count).toHaveBeenNthCalledWith(1);
+      expect(mockPrismaService.task.count).toHaveBeenNthCalledWith(2, {
+        where: { done: true },
+      });
+
+      expect(result).toEqual({ total: 3, done: 1, pending: 2 });
+    });
+  });
 });
